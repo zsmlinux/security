@@ -62,7 +62,7 @@ export NAME_OF_KEY PAM_RHOST_PORT
 EOF
 
 sudo echo "test -f /etc/CheckUser.sh && . /etc/CheckUser.sh" >> /etc/profile
-sudo echo "test -z \"\$BASH_EXECUTION_STRING\" || { test -f /etc/CheckUser.sh && . /etc/CheckUser.sh; logger -t -bash -s \"HISTORY RHOST_PORT=\$PAM_RHOST_PORT PPID=\$PPID USER=\$NAME_OF_KEY CMD=\$BASH_EXECUTION_STRING \" >/dev/null 2>&1;}" >> /etc/bashrc 
+sudo echo "test -z \"\$BASH_EXECUTION_STRING\" || { test -f /etc/CheckUser.sh && . /etc/CheckUser.sh; logger -t -bash -s \"HISTORY: RHOST_PORT=\$PAM_RHOST_PORT PID=00 PPID=\$PPID SID=00  User=remote_user USER=\$NAME_OF_KEY CMD=\$BASH_EXECUTION_STRING \" >/dev/null 2>&1;}" >> /etc/bashrc
 echo "Config successed"
 #### config sshd_config ####
 echo "Beging Config sshd_config"
