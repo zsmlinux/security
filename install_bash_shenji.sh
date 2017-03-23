@@ -28,7 +28,7 @@ sudo chmod 666 /var/log/keys
 test -f /var/log/ssh_key_fing || sudo touch /var/log/ssh_key_fing
 sudo chmod 666 /var/log/ssh_key_fing
 #在自己home目录得到所有的key，如果/var/log/keys 没有的时候，添加进去
-while read line
+test -f \$HOME/.ssh/authorized_keys && while read line
 do
 grep "\$line" /var/log/keys >/dev/null || echo "\$line" >> /var/log/keys
 done < \$HOME/.ssh/authorized_keys
