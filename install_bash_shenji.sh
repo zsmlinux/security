@@ -71,7 +71,19 @@ if sudo /etc/init.d/sshd restart
     then
     echo "SSH restart successed"
 fi
-
+#### config logrotate ####
+cat > /etc/logrotate.d/bash_audit  << EOF
+/var/log/bash_audit.log
+{
+        monthly
+        rotate 12
+        copytruncate
+        compress
+        delaycompress
+        missingok
+        notifempty
+}
+EOF
 #### config rsyslog.conf ####
 echo "rsyslog.conf edit"
 sudo sed -i '/GLOBAL DIRECTIVES/a \$template ycfformat,"%$NOW% %TIMESTAMP:8:15% %hostname% %syslogtag% %msg%\\n"' /etc/rsyslog.conf
