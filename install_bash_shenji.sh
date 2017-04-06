@@ -60,6 +60,7 @@ readonly NAME_OF_KEY PAM_RHOST_PORT
 export NAME_OF_KEY PAM_RHOST_PORT
 /bin/rm /tmp/keys.log.\$pid
 EOF
+chmod 666 /etc/CheckUser.sh
 
 sudo echo "test -f /etc/CheckUser.sh && . /etc/CheckUser.sh" >> /etc/profile
 sudo echo "test -z \"\$BASH_EXECUTION_STRING\" || { test -f /etc/CheckUser.sh && . /etc/CheckUser.sh; logger -t -bash -s \"HISTORY: RHOST_PORT=\$PAM_RHOST_PORT PID=00 PPID=\$PPID SID=00  User=remote_user USER=\$NAME_OF_KEY CMD=\$BASH_EXECUTION_STRING \" >/dev/null 2>&1;}" >> /etc/bashrc
