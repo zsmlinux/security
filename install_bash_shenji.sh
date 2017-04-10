@@ -18,15 +18,18 @@ sudo sed -i '/ycf/s#/bin/bash#/usr/local/bash_4.1/bin/bash#' /etc/passwd
 #### config server ####
 echo "Begin To config Server"
 chmod 666 /var/log/secure
-touch /var/log/keys
+test -f /var/log/keys || touch /var/log/keys
+chmod 666 /var/log/keys
+test -f /var/log/ssh_key_fing || touch /var/log/ssh_key_fing
+chmod 666 /var/log/ssh_key_fing
 cat > /etc/CheckUser.sh << EOF
 #!/bin/bash
 #conding:utf-8
 pid=\$PPID
-test -f /var/log/keys || sudo touch /var/log/keys
-sudo chmod 666 /var/log/keys
-test -f /var/log/ssh_key_fing || sudo touch /var/log/ssh_key_fing
-sudo chmod 666 /var/log/ssh_key_fing
+test -f /var/log/keys || touch /var/log/keys
+
+test -f /var/log/ssh_key_fing || touch /var/log/ssh_key_fing
+
 #在自己home目录得到所有的key，如果/var/log/keys 没有的时候，添加进去
 test -f \$HOME/.ssh/authorized_keys && while read line
 do
@@ -61,7 +64,6 @@ export NAME_OF_KEY PAM_RHOST_PORT
 /bin/rm /tmp/keys.log.\$pid
 EOF
 chmod 666 /etc/CheckUser.sh
-
 sudo echo "test -f /etc/CheckUser.sh && . /etc/CheckUser.sh" >> /etc/profile
 sudo echo "test -z \"\$BASH_EXECUTION_STRING\" || { test -f /etc/CheckUser.sh && . /etc/CheckUser.sh; logger -t -bash -s \"HISTORY: RHOST_PORT=\$PAM_RHOST_PORT PID=00 PPID=\$PPID SID=00  User=remote_user USER=\$NAME_OF_KEY CMD=\$BASH_EXECUTION_STRING \" >/dev/null 2>&1;}" >> /etc/bashrc
 echo "Config successed"
