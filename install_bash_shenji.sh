@@ -12,8 +12,10 @@ else
     exit 3
 fi
 sudo echo "/usr/local/bash_4.1/bin/bash" >> /etc/shells
-sudo sed -i '/root/s#/bin/bash#/usr/local/bash_4.1/bin/bash#' /etc/passwd
-sudo sed -i '/ycf/s#/bin/bash#/usr/local/bash_4.1/bin/bash#' /etc/passwd
+sudo mv /bin/bash /bin/bash.bak
+sudo ln -s /usr/local/bash_4.1/bin/bash /bin/bash
+#sudo sed -i '/root/s#/bin/bash#/usr/local/bash_4.1/bin/bash#' /etc/passwd
+#sudo sed -i '/ycf/s#/bin/bash#/usr/local/bash_4.1/bin/bash#' /etc/passwd
 
 #### config server ####
 echo "Begin To config Server"
