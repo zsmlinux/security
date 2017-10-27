@@ -77,6 +77,8 @@ export NAME_OF_KEY PAM_RHOST_PORT
 EOF
 chmod 666 /etc/CheckUser.sh
 sudo echo "test -f /etc/CheckUser.sh && . /etc/CheckUser.sh" >> /etc/profile
+# 清屏有可能会在7版本系统上失效，添加清屏快捷键
+sudo echo "bind -x '\"\C-l\": clear'" >> /etc/profile
 sudo echo "test -z \"\$BASH_EXECUTION_STRING\" || { test -f /etc/CheckUser.sh && . /etc/CheckUser.sh; logger -t -bash -s \"HISTORY: RHOST_PORT=\$PAM_RHOST_PORT PID=00 PPID=\$PPID SID=00  User=remote_user USER=\$NAME_OF_KEY CMD=\$BASH_EXECUTION_STRING \" >/dev/null 2>&1;}" >> /etc/bashrc
 echo "Config successed"
 #### config sshd_config ####
