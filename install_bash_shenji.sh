@@ -3,7 +3,7 @@
 #### Install bash-4.1-shenji.tar.gz ####
 echo "Begin To Install bash-4.1"
 sudo tar -xf bash-4.1-shenji.tar.gz && cd bash-4.1
-sudo yum install -y make gcc gcc-c++ 
+sudo yum install -y make gcc gcc-c++ redhat-lsb-core
 if sudo ./configure --prefix=/usr/local/bash_4.1 && sudo make && sudo make install
     then
     echo "Install Sucessed"
@@ -35,30 +35,40 @@ test -f /var/log/ssh_key_fing || touch /var/log/ssh_key_fing
 #在自己home目录得到所有的key，如果/var/log/keys 没有的时候，添加进去
 test -f \$HOME/.ssh/authorized_keys && while read line
 do
-grep "\$line" /var/log/keys >/dev/null || echo "\$line" >> /var/log/keys
+    grep "\$line" /var/log/keys >/dev/null || echo "\$line" >> /var/log/keys
 done < \$HOME/.ssh/authorized_keys
 #得到每个key的指纹
 cat /var/log/keys | while read LINE
 do
- NAME=\$(echo \$LINE | awk '{print \$3}')
-echo \$LINE >/tmp/keys.log.\$pid
- KEY=\$(ssh-keygen -l -f /tmp/keys.log.\$pid | awk '{print \$2}')
-grep "\$KEY \$NAME" /var/log/ssh_key_fing >/dev/null || echo "\$KEY \$NAME" >> /var/log/ssh_key_fing
+    NAME=\$(echo \$LINE | awk '{print \$3}')
+    echo \$LINE >/tmp/keys.log.\$pid
+    KEY=\$(ssh-keygen -l -f /tmp/keys.log.\$pid | awk '{print \$2}')
+    grep "\$KEY \$NAME" /var/log/ssh_key_fing >/dev/null || echo "\$KEY \$NAME" >> /var/log/ssh_key_fing
 done
 #如果是root用户，secure文件里面是通过PPID号验证指纹
 if [ \$UID == 0 ]
 then
-ppid=\$PPID
+    ppid=\$PPID
 else
-#如果不是root用户，验证指纹的是另外一个进程号
-ppid=\`/bin/ps -ef | grep \$PPID |grep 'sshd:' |awk '{print \$3}'\`
+    #如果不是root用户，验证指纹的是另外一个进程号
+    ppid=\`/bin/ps -ef | grep \$PPID |grep 'sshd:' |awk '{print \$3}'\`
 fi
-#得到RSA_KEY和NAME_OF_KEY，用来bash4.1得到历史记录
-RSA_KEY=\`/bin/egrep 'Found matching RSA key' /var/log/secure | /bin/egrep "\$ppid" | /bin/awk '{print \$NF}' | tail -1\`
-#得到PAM_RHOST_PORT
-PAM_RHOST_PORT=\`/bin/egrep 'Accepted' /var/log/secure | /bin/awk 'BEGIN{OFS=":";} {print \$(NF-3),\$(NF-1)}' | tail -1\`
- if [ -n "\$RSA_KEY" ];then
-NAME_OF_KEY=\`/bin/egrep "\$RSA_KEY" /var/log/ssh_key_fing | /bin/awk '{print \$NF}'\`
+# 判断系统版本
+system_version=\`lsb_release -a | awk '/Release/{print (\$NF < 7 ? "6":"7")}'\`
+if [ x\$system_version = x7 ]
+then
+    #得到RSA_KEY和NAME_OF_KEY，用来bash4.1得到历史记录
+    RSA_KEY=\`/bin/egrep 'Accepted publickey' /var/log/secure | /bin/egrep "\$ppid" | /bin/awk '{print \$NF}' | tail -1\`
+    #得到PAM_RHOST_PORT
+    PAM_RHOST_PORT=\`/bin/egrep 'Accepted publickey' /var/log/secure | /bin/awk 'BEGIN{OFS=":";} {print \$(NF-5),\$(NF-3)}' | tail -1\`
+else
+    #得到RSA_KEY和NAME_OF_KEY，用来bash4.1得到历史记录
+    RSA_KEY=\`/bin/egrep 'Found matching RSA key' /var/log/secure | /bin/egrep "\$ppid" | /bin/awk '{print \$NF}' | tail -1\`
+    #得到PAM_RHOST_PORT
+    PAM_RHOST_PORT=\`/bin/egrep 'Accepted' /var/log/secure | /bin/awk 'BEGIN{OFS=":";} {print \$(NF-3),\$(NF-1)}' | tail -1\`
+fi
+if [ -n "\$RSA_KEY" ];then
+    NAME_OF_KEY=\`/bin/egrep "\$RSA_KEY" /var/log/ssh_key_fing | /bin/awk '{print \$NF}'\`
 fi
 #把NAME_OF_KEY设置为只读
 readonly NAME_OF_KEY PAM_RHOST_PORT
